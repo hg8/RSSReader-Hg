@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">RSS Reader Hg2</string>
+
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_display_feed">Flux</string>
+
+    <string name="rss_url">URL du flux RSS</string>
+    <string name="button_send">Valider</string>
+
+
+</resources>
