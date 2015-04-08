@@ -1,5 +1,6 @@
 package com.epsi.hugo.rssreaderhg2;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.epsi.hugo.rssreaderhg2.pck_classes.PostAdapter;
 import com.epsi.hugo.rssreaderhg2.pck_classes.PostData;
@@ -31,15 +33,25 @@ import java.util.List;
 
 public class Display_feed extends ActionBarActivity {
 
+    private static ProgressDialog progress = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //loading dialog
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading");
+        progress.setMessage("Fetchning RSS datas...");
+        progress.show();
 
         // Get the message from the intent
         Intent intent = getIntent();
         String urlString = intent.getStringExtra("RSS_URL");
 
         Log.i("URL_FEED", ""+urlString);
+
+
 
         /*// Create the text view
         TextView textView = new TextView(this);
@@ -50,9 +62,6 @@ public class Display_feed extends ActionBarActivity {
         setContentView(textView);*/
 
         new InputStreamTask().execute(urlString);
-        Log.i("Test", "im here");
-
-
     }
 
     @Override
@@ -81,11 +90,10 @@ public class Display_feed extends ActionBarActivity {
     private class InputStreamTask extends AsyncTask<String, Void, InputStream>{
         @Override
         protected InputStream doInBackground(String... url){
-            Log.i("URL[0]",""+url[0]);
             try {
                 //get the xml content of the rss feed url
                 InputStream in = new URL(url[0]).openStream();
-                Log.i("********************",""+url[0]);
+                Log.i("URL[0]",""+url[0]);
                 return in;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -122,15 +130,10 @@ public class Display_feed extends ActionBarActivity {
                     Log.d("POSTS:", ""+posts);
                     return posts;
                 }
-               else
-                {
-                    Log.i("ELSE", "JE SUIS ELSE");
-                }
 
             }
             catch (IOException | XmlPullParserException e)
             {
-                Log.i("ELSE", "JE SUIS CATCH");
                 e.printStackTrace();
             }
             return null;
@@ -166,30 +169,32 @@ public class Display_feed extends ActionBarActivity {
 
                 listView.setAdapter(postAdapter);
 
-                Log.i("SETADPATER", "JE NE SERAI PAS AFFICH2");
-
-
+                progress.dismiss();
 
                 //open the post url when user click on the post
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
                 {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View child, int position, long id) {
+
                         Intent intentBrowser = new Intent(Intent.ACTION_VIEW);
+
                         //get the id of current post
                         PostData postData = (PostData) listView.getItemAtPosition(position);
+
                         //put inside the indent the url of the choosen post
                         intentBrowser.setData(Uri.parse(postData.getPostURL()));
+
                         //launch the intent browser containing the url
                         startActivity(intentBrowser);
+
                     }
                 });
-
-                Log.i("END", "This is the end");
             }
             else
             {
                 Log.e("EROrR", "THE URL IS INCORRECT");
+                Toast.makeText(getApplicationContext(), "URL is invalid. Please retry with a valid URL :)", Toast.LENGTH_LONG).show();
             }
 
         }
